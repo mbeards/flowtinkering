@@ -2,6 +2,8 @@ import sys
 import re
 from datetime import *
 from collections import namedtuple
+import networkx as nx
+import matplotlib.pyplot as plt
 
 Flow = namedtuple( 'Flow', ['start_datetime', 'duration', 'protocol', 'src_ip', 'src_port', 'dst_ip', 'dst_port', 'num_packets', 'num_bytes', 'num_flows'] )
 
@@ -37,3 +39,24 @@ for line in flow_lines:
 
 for f in flows[0:10]:
     print f
+
+
+G = nx.Graph()
+i = 0
+for f in flows:
+  G.add_edge(f[3],f[5])
+
+  print i, "of", len(flows)
+  i+=1
+
+position = nx.spring_layout(G)
+
+localnodes =  [n for n in G if ("192.168" in n)]  
+remotenodes = [n for n in G if ("192.168" not in n)]
+
+nx.draw_networkx_nodes(G, position, nodelist = localnodes, node_color="g", node_size=10, draw_labels=True)
+nx.draw_networkx_nodes(G, position, nodelist = remotenodes, node_color="r", node_size = 8)
+
+nx.draw_networkx_edges(G, position)
+
+plt.show()
